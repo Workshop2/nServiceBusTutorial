@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NServiceBus;
+using Shared;
 
 namespace Client
 {
@@ -46,6 +47,33 @@ namespace Client
                 await endpointInstance
                                     .Stop()
                                     .ConfigureAwait(false);
+            }
+        }
+
+        static async Task SendOrder(IEndpointInstance endpointInstance)
+        {
+            Console.WriteLine("Press enter to send a message");
+            Console.WriteLine("Press any key to exit");
+
+            while (true)
+            {
+                var key = Console.ReadKey();
+                Console.WriteLine();
+
+                if (key.Key != ConsoleKey.Enter)
+                {
+                    return;
+                }
+                var id = Guid.NewGuid();
+
+                var placeOrder = new PlaceOrder
+                {
+                    Product = "New shoes",
+                    Id = id
+                };
+
+                await endpointInstance.Send("Samples.StepByStep.Server", placeOrder);
+                Console.WriteLine($"Sent a PlaceOrder message with id: {id:N}");
             }
         }
     }
